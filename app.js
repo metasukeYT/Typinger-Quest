@@ -27,6 +27,8 @@ const switchCharBtn = document.getElementById('switch-char-btn');
 const storyOverlay = document.getElementById('story-overlay');
 const dialogueText = document.getElementById('dialogue-text');
 const speakerName = document.querySelector('.speaker-name');
+const stageScreen = document.getElementById('stage-screen');
+const stageList = document.getElementById('stage-list');
 
 const shopOverlay = document.getElementById('shop-overlay');
 const closeShopBtn = document.getElementById('close-shop');
@@ -58,20 +60,32 @@ const WORD_DICTIONARY = {
     ]
 };
 
-// --- Story Data ---
-const STORY_CHAPTERS = [
-    {
-        id: 1,
-        title: "第一章：虚無の目覚め",
-        dialogue: [
-            { speaker: "CHRONOS", text: "気がついたか、パイロット。この世界は今、タイピングエネルギーを失い、虚無に包まれようとしている。" },
-            { speaker: "CHRONOS", text: "君の打鍵の響きだけが、この宇宙を繋ぎ止める唯一の希望だ。" },
-            { speaker: "CHRONOS", text: "さあ、最初の虚無の化身が近づいている。キーを叩き、その力を解き放て！" }
-        ]
-    }
+// --- Stage Data ---
+const STAGES = [
+    { id: 1, name: "Stage 01", difficulty: "Entry", hp: 100, speedMult: 1.0, words: ['short'] },
+    { id: 2, name: "Stage 02", difficulty: "Novice", hp: 150, speedMult: 1.1, words: ['short', 'mid'] },
+    { id: 3, name: "Stage 03", difficulty: "Normal", hp: 200, speedMult: 1.2, words: ['short', 'mid'] },
+    { id: 4, name: "Stage 04", difficulty: "Adept", hp: 300, speedMult: 1.3, words: ['mid'] },
+    { id: 5, name: "Stage 05", difficulty: "Elite", hp: 450, speedMult: 1.4, words: ['mid', 'long'] },
+    { id: 6, name: "Stage 06", difficulty: "Expert", hp: 600, speedMult: 1.5, words: ['mid', 'long'] },
+    { id: 7, name: "Stage 07", difficulty: "Master", hp: 800, speedMult: 1.6, words: ['long'] },
+    { id: 8, name: "Stage 08", difficulty: "Grand", hp: 1100, speedMult: 1.7, words: ['long'] },
+    { id: 9, name: "Stage 09", difficulty: "Legend", hp: 1500, speedMult: 1.8, words: ['long'] },
+    { id: 10, name: "Stage 10", difficulty: "Divine", hp: 2000, speedMult: 2.0, words: ['long'] }
 ];
 
-let currentChapterIndex = 0;
+let selectedStage = null;
+
+// --- Story Data ---
+const STORY_CHAPTERS = {
+    1: [
+        { speaker: "CHRONOS", text: "気がついたか、パイロット。この世界は今、タイピングエネルギーを失い、虚無に包まれようとしている。" },
+        { speaker: "CHRONOS", text: "君の打鍵の響きだけが、この宇宙を繋ぎ止める唯一の希望だ。" },
+        { speaker: "CHRONOS", text: "さあ、最初の虚無の化身が近づいている。キーを叩き、その力を解き放て！" }
+    ],
+    // Add more if needed per stage id
+};
+
 let currentDialogueIndex = 0;
 let isStoryActive = false;
 
@@ -229,7 +243,7 @@ class FloatingWord {
         this.x = Math.random() * (width - 400) + 200;
         this.y = Math.random() * (height - 400) + 200;
         this.angle = Math.random() * Math.PI * 2;
-        this.speed = 0.02 + Math.random() * (0.01 + userData.level * 0.005);
+        this.speed = (0.02 + Math.random() * (0.01 + userData.level * 0.005)) * (selectedStage ? selectedStage.speedMult : 1);
         this.amplitude = 20 + Math.random() * 30;
         this.element = document.createElement('div');
         this.element.className = 'floating-word';
@@ -259,9 +273,10 @@ class FloatingWord {
 
 function spawnWord() {
     let pool = [];
-    if (userData.level === 1) pool = [...WORD_DICTIONARY.short];
-    else if (userData.level === 2) pool = [...WORD_DICTIONARY.short, ...WORD_DICTIONARY.mid];
-    else pool = [...WORD_DICTIONARY.mid, ...WORD_DICTIONARY.long];
+    const pools = selectedStage ? selectedStage.words : ['short'];
+    pools.forEach(p => {
+        pool = [...pool, ...WORD_DICTIONARY[p]];
+    });
     const data = pool[Math.floor(Math.random() * pool.length)];
     const word = new FloatingWord(data);
     words.push(word);
@@ -288,8 +303,28 @@ function selectHero(hero, card) {
     saveGame();
 }
 
+function initStageSelection() {
+    stageList.innerHTML = "";
+    STAGES.forEach(stage => {
+        const card = document.createElement('div');
+        card.className = 'stage-card';
+        card.innerHTML = `<h3>${stage.name}</h3><p>${stage.difficulty}</p>`;
+        card.onclick = () => selectStage(stage);
+        stageList.appendChild(card);
+    });
+}
+
+function selectStage(stage) {
+    selectedStage = stage;
+    enemyHp = stage.hp;
+    enemyHpBar.style.width = '100%';
+    stageScreen.classList.add('hidden');
+    startStory();
+}
+
 switchCharBtn.onclick = () => {
     startScreen.classList.remove('hidden');
+    stageScreen.classList.add('hidden');
     words.forEach(w => w.destroy());
     words = [];
     currentWordIndex = -1;
@@ -299,25 +334,26 @@ switchCharBtn.onclick = () => {
 function startStory() {
     isStoryActive = true;
     currentDialogueIndex = 0;
+    const dialogue = STORY_CHAPTERS[selectedStage.id] || STORY_CHAPTERS[1];
     storyOverlay.classList.remove('hidden');
-    renderDialogue();
+    renderDialogue(dialogue);
 }
 
-function renderDialogue() {
-    const chapter = STORY_CHAPTERS[currentChapterIndex];
-    const item = chapter.dialogue[currentDialogueIndex];
+function renderDialogue(dialogue) {
+    const item = dialogue[currentDialogueIndex];
     speakerName.innerText = item.speaker;
     dialogueText.innerText = item.text;
 }
 
 storyOverlay.onclick = () => {
+    const dialogue = STORY_CHAPTERS[selectedStage.id] || STORY_CHAPTERS[1];
     currentDialogueIndex++;
-    if (currentDialogueIndex >= STORY_CHAPTERS[currentChapterIndex].dialogue.length) {
+    if (currentDialogueIndex >= dialogue.length) {
         storyOverlay.classList.add('hidden');
         isStoryActive = false;
         spawnWord(); spawnWord();
     } else {
-        renderDialogue();
+        renderDialogue(dialogue);
     }
 };
 
@@ -387,7 +423,7 @@ function completeWord(word) {
     }
     let damage = word.romaji.length * (5 + combo * 0.2) * damageMult;
     enemyHp -= damage;
-    enemyHpBar.style.width = `${enemyHp}%`;
+    enemyHpBar.style.width = `${(enemyHp / selectedStage.hp) * 100}%`;
     let earned = Math.floor(word.romaji.length * 10 * (1 + combo * 0.05) * coinMult);
     userData.coins += earned;
     coinDisplay.innerText = userData.coins;
@@ -397,12 +433,8 @@ function completeWord(word) {
     currentWordIndex = -1;
     typedCharsCount = 0;
     if (enemyHp <= 0) {
-        userData.level++;
-        levelDisplay.innerText = userData.level;
-        saveGame();
-        enemyHp = 100 + userData.level * 10;
-        enemyHpBar.style.width = '100%';
-        alert("敵機撃破。レベルが上昇しました。");
+        alert("敵機撃破！");
+        location.reload(); // Return to menu for now
     }
     setTimeout(spawnWord, 500);
 }
@@ -426,7 +458,8 @@ window.addEventListener('resize', resize);
 window.addEventListener('keydown', handleInput);
 startBtn.addEventListener('click', () => {
     startScreen.classList.add('hidden');
-    startStory();
+    stageScreen.classList.remove('hidden');
+    initStageSelection();
 });
 
 resize(); initSelection();

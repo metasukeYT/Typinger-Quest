@@ -554,6 +554,52 @@ button:hover {
     text-shadow: 0 0 10px var(--neon-cyan);
 }
 
+/* Stage Selection */
+.stage-panel {
+    width: 90%;
+    max-width: 1000px;
+    padding: 40px;
+    text-align: center;
+}
+
+.stage-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+    gap: 15px;
+    margin-top: 30px;
+    pointer-events: auto;
+}
+
+.stage-card {
+    background: rgba(255, 255, 255, 0.05);
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    padding: 20px;
+    text-align: center;
+    cursor: pointer;
+    transition: all 0.3s;
+    border-radius: 12px;
+    pointer-events: auto;
+}
+
+.stage-card:hover {
+    background: rgba(0, 243, 255, 0.1);
+    border-color: var(--neon-cyan);
+    box-shadow: 0 0 15px var(--neon-cyan);
+    transform: translateY(-5px);
+}
+
+.stage-card h3 {
+    margin: 0;
+    font-family: var(--font-ui);
+    color: var(--neon-cyan);
+}
+
+.stage-card p {
+    font-size: 0.7rem;
+    color: #888;
+    margin-top: 5px;
+}
+
 @keyframes float {
 
     0%,
