@@ -16,6 +16,16 @@
     <div id="game-container">
         <canvas id="bg-canvas"></canvas>
 
+        <!-- Login Overlay -->
+        <div id="login-screen" class="overlay">
+            <div class="glass-panel">
+                <h1 class="title">Typinger-Quest</h1>
+                <p class="subtitle">Enter Pilot Name</p>
+                <input type="text" id="username-input" placeholder="USERNAME" maxlength="12">
+                <button id="login-btn">INITIALIZE</button>
+            </div>
+        </div>
+
         <!-- UI Overlay -->
         <div id="ui-layer">
             <!-- Header: Stats & HUD -->
@@ -25,15 +35,22 @@
                         <img src="player.png" alt="Light" id="player-sprite">
                     </div>
                     <div class="player-stats">
-                        <span class="char-name">LIGHT</span>
+                        <div class="char-header">
+                            <span class="char-name">LIGHT</span>
+                            <span class="level-badge">LV.<span id="level-val">1</span></span>
+                        </div>
                         <div class="hp-bar-container">
                             <div id="player-hp" class="hp-bar"></div>
                         </div>
                     </div>
+                    <button id="switch-char-btn" class="mini-btn">SWITCH</button>
                 </div>
                 <div class="coin-display">
                     <span class="label">COIN:</span>
                     <span id="coin-count">0</span>
+                    <div id="combo-container" class="combo-info">
+                        <span id="combo-count">0</span> COMBO
+                    </div>
                 </div>
             </header>
 
@@ -53,19 +70,14 @@
                 <div id="typing-area"></div>
             </main>
 
-            <!-- Shop Overlay (Initial Hidden) -->
-            <div id="shop-overlay" class="hidden">
-                <div class="shop-content">
-                    <h2>ANCIENT MAGIC SHOP</h2>
-                    <div class="shop-items">
-                        <div class="shop-item locked">
-                            <span class="item-name">Chronos Gaze</span>
-                            <span class="item-price">500 C</span>
-                        </div>
-                        <div class="shop-item locked">
-                            <span class="item-name">Gravity Crush</span>
-                            <span class="item-price">1200 C</span>
-                        </div>
+            <!-- Shop Overlay -->
+            <div id="shop-overlay" class="hidden overlay">
+                <div class="shop-content glass-panel">
+                    <h2 class="neon-text">ANCIENT MAGIC SHOP</h2>
+                    <p class="shop-user-info">Pilot: <span id="shop-username">---</span> | Coins: <span
+                            id="shop-coins">0</span></p>
+                    <div id="magic-list" class="shop-items scrollable">
+                        <!-- Magic skills will be injected here -->
                     </div>
                     <button id="close-shop">Return to Battle</button>
                 </div>

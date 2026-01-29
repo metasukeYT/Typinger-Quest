@@ -50,6 +50,54 @@ body {
     flex-direction: column;
 }
 
+/* Overlays */
+.overlay {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.95);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 200;
+}
+
+.glass-panel {
+    background: var(--glass-bg);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    padding: 60px;
+    border-radius: 20px;
+    backdrop-filter: blur(20px);
+    text-align: center;
+    box-shadow: 0 0 50px rgba(0, 0, 0, 0.5);
+}
+
+#username-input {
+    background: rgba(255, 255, 255, 0.05);
+    border: 2px solid var(--neon-cyan);
+    color: var(--neon-cyan);
+    padding: 15px;
+    font-family: var(--font-ui);
+    font-size: 1.5rem;
+    text-align: center;
+    margin-bottom: 30px;
+    width: 300px;
+    outline: none;
+    box-shadow: 0 0 10px rgba(0, 243, 255, 0.2);
+}
+
+#username-input:focus {
+    box-shadow: 0 0 20px var(--neon-cyan);
+}
+
+.mini-btn {
+    padding: 5px 10px;
+    font-size: 0.7rem;
+    margin-left: 10px;
+}
+
 /* HUD Styles */
 .hud {
     padding: 20px 40px;
@@ -80,6 +128,12 @@ body {
     object-fit: cover;
 }
 
+.char-header {
+    display: flex;
+    align-items: baseline;
+    gap: 10px;
+}
+
 .char-name {
     font-family: var(--font-ui);
     font-size: 1.2rem;
@@ -87,6 +141,16 @@ body {
     text-shadow: 0 0 10px var(--neon-cyan);
     margin-bottom: 5px;
     display: block;
+}
+
+.level-badge {
+    font-family: var(--font-ui);
+    font-size: 0.8rem;
+    color: var(--neon-yellow);
+    background: rgba(255, 255, 0, 0.1);
+    padding: 2px 6px;
+    border-radius: 4px;
+    border: 1px solid var(--neon-yellow);
 }
 
 .hp-bar-container {
@@ -113,9 +177,27 @@ body {
 
 .coin-display {
     font-family: var(--font-ui);
+    text-align: right;
+}
+
+#coin-count {
     font-size: 1.5rem;
     color: var(--neon-yellow);
     text-shadow: 0 0 10px var(--neon-yellow);
+}
+
+.combo-info {
+    font-size: 1rem;
+    color: var(--neon-magenta);
+    text-shadow: 0 0 8px var(--neon-magenta);
+    margin-top: 5px;
+    opacity: 0;
+    transition: transform 0.1s, opacity 0.3s;
+}
+
+.combo-info.active {
+    opacity: 1;
+    transform: scale(1.2);
 }
 
 /* Battle Scene */
@@ -240,16 +322,86 @@ button:hover {
     text-align: center;
 }
 
-.shop-items {
-    margin: 30px 0;
+.shop-user-info {
+    font-family: var(--font-ui);
+    color: var(--neon-cyan);
+    margin-bottom: 20px;
+    font-size: 0.9rem;
+}
+
+.scrollable {
+    max-height: 400px;
+    overflow-y: auto;
+    padding-right: 10px;
+}
+
+.scrollable::-webkit-scrollbar {
+    width: 6px;
+}
+
+.scrollable::-webkit-scrollbar-thumb {
+    background: var(--neon-cyan);
+    border-radius: 3px;
 }
 
 .shop-item {
     display: flex;
     justify-content: space-between;
+    align-items: center;
     padding: 15px;
-    border-bottom: 1px solid rgba(255, 255, 255, 0.1);
-    color: rgba(255, 255, 255, 0.4);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    background: rgba(255, 255, 255, 0.02);
+    margin-bottom: 10px;
+    border-radius: 10px;
+    transition: all 0.2s;
+}
+
+.shop-item:hover {
+    border-color: var(--neon-magenta);
+    background: rgba(255, 0, 255, 0.05);
+}
+
+.skill-info {
+    text-align: left;
+}
+
+.skill-name {
+    display: block;
+    font-family: var(--font-ui);
+    color: #fff;
+}
+
+.skill-desc {
+    font-size: 0.7rem;
+    color: #888;
+}
+
+.buy-btn {
+    background: transparent;
+    border: 1px solid var(--neon-yellow);
+    color: var(--neon-yellow);
+    padding: 5px 15px;
+    font-size: 0.8rem;
+}
+
+.buy-btn:hover {
+    background: var(--neon-yellow);
+    color: #000;
+}
+
+.buy-btn.owned {
+    border-color: #555;
+    color: #555;
+    cursor: default;
+}
+
+.buy-btn.owned:hover {
+    background: transparent;
+    color: #555;
+}
+
+.neon-text {
+    text-shadow: 0 0 10px var(--neon-cyan);
 }
 
 @keyframes float {
