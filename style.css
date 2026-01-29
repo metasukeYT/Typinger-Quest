@@ -192,6 +192,12 @@ body {
     object-fit: cover;
 }
 
+/* Character Display */
+.player-stats {
+    display: flex;
+    flex-direction: column;
+}
+
 .char-header {
     display: flex;
     align-items: baseline;
@@ -205,6 +211,14 @@ body {
     text-shadow: 0 0 10px var(--neon-cyan);
     margin-bottom: 5px;
     display: block;
+}
+
+.romaji-guide {
+    display: block;
+    font-size: 0.8rem;
+    color: rgba(255, 255, 255, 0.4);
+    font-family: var(--font-text);
+    text-transform: lowercase;
 }
 
 .level-badge {

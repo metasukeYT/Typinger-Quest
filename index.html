@@ -16,24 +16,24 @@
     <div id="game-container">
         <canvas id="bg-canvas"></canvas>
 
-        <!-- Login Overlay -->
+        <!-- Login Overlay (Localized) -->
         <div id="login-screen" class="overlay">
             <div class="glass-panel auth-panel">
-                <h1 class="title">Typinger-Quest</h1>
-                <p id="auth-mode-text" class="subtitle">Enter Pilot Credentials</p>
+                <h1 class="title neon-text">タイピンガー・クエスト</h1>
+                <p id="auth-mode-text" class="subtitle">パイロット認証情報を入力してください</p>
                 <div class="input-group">
-                    <input type="email" id="email-input" placeholder="EMAIL ADDRESS" required>
-                    <input type="password" id="password-input" placeholder="PASSWORD" required>
+                    <input type="email" id="email-input" placeholder="メールアドレス" required>
+                    <input type="password" id="password-input" placeholder="パスワード" required>
                 </div>
                 <div class="auth-actions">
-                    <button id="login-btn">LOGIN</button>
-                    <button id="register-btn" class="secondary-btn">REGISTER</button>
-                    <button id="guest-btn" class="tertiary-btn">GUEST PLAY</button>
+                    <button id="login-btn">ログイン</button>
+                    <button id="register-btn" class="secondary-btn">新規登録</button>
+                    <button id="guest-btn" class="tertiary-btn">ゲストで遊ぶ</button>
                 </div>
                 <div id="verify-section" class="hidden">
-                    <p class="subtitle">Enter 6-digit Code</p>
+                    <p class="subtitle">6桁の認証コードを入力</p>
                     <input type="text" id="verify-input" placeholder="000000" maxlength="6">
-                    <button id="verify-btn">VERIFY</button>
+                    <button id="verify-btn">認証する</button>
                 </div>
                 <p id="auth-error" class="error-msg hidden"></p>
             </div>
@@ -59,10 +59,10 @@
                     <button id="switch-char-btn" class="mini-btn">SWITCH</button>
                 </div>
                 <div class="coin-display">
-                    <span class="label">COIN:</span>
+                    <span class="label">所持コイン:</span>
                     <span id="coin-count">0</span>
                     <div id="combo-container" class="combo-info">
-                        <span id="combo-count">0</span> COMBO
+                        <span id="combo-count">0</span> コンボ
                     </div>
                 </div>
             </header>
@@ -86,24 +86,33 @@
             <!-- Shop Overlay -->
             <div id="shop-overlay" class="hidden overlay">
                 <div class="shop-content glass-panel">
-                    <h2 class="neon-text">ANCIENT MAGIC SHOP</h2>
-                    <p class="shop-user-info">Pilot: <span id="shop-username">---</span> | Coins: <span
+                    <h2 class="neon-text">古代魔法ショップ</h2>
+                    <p class="shop-user-info">パイロット: <span id="shop-username">---</span> | コイン: <span
                             id="shop-coins">0</span></p>
                     <div id="magic-list" class="shop-items scrollable">
                         <!-- Magic skills will be injected here -->
                     </div>
-                    <button id="close-shop">Return to Battle</button>
+                    <button id="close-shop">戦場に戻る</button>
                 </div>
             </div>
 
             <!-- Start Message / Character Selection -->
             <div id="start-screen">
-                <h1 class="title">Typinger-Quest</h1>
-                <p class="subtitle">Select Your Hero</p>
+                <h1 class="title neon-text">タイピンガー・クエスト</h1>
+                <p class="subtitle">ヒーローを選択してください</p>
                 <div id="char-selection" class="char-grid">
                     <!-- Characters will be injected here -->
                 </div>
-                <button id="start-btn" class="hidden">ENGAGE</button>
+                <button id="start-btn" class="hidden">出撃</button>
+            </div>
+
+            <!-- Story Dialogue Overlay -->
+            <div id="story-overlay" class="hidden overlay">
+                <div class="dialogue-box glass-panel">
+                    <div class="speaker-name">CHRONOS</div>
+                    <p id="dialogue-text">...</p>
+                    <div class="tap-hint">TAP TO CONTINUE</div>
+                </div>
             </div>
         </div>
     </div>
