@@ -1,0 +1,88 @@
+<!DOCTYPE html>
+<html lang="ja">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Typinger-Quest | Antigravity Typing RPG</title>
+    <link rel="stylesheet" href="style.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700&family=Outfit:wght@300;600&display=swap"
+        rel="stylesheet">
+</head>
+
+<body>
+    <div id="game-container">
+        <canvas id="bg-canvas"></canvas>
+
+        <!-- UI Overlay -->
+        <div id="ui-layer">
+            <!-- Header: Stats & HUD -->
+            <header class="hud">
+                <div class="character-info">
+                    <div class="player-sprite-container">
+                        <img src="player.png" alt="Light" id="player-sprite">
+                    </div>
+                    <div class="player-stats">
+                        <span class="char-name">LIGHT</span>
+                        <div class="hp-bar-container">
+                            <div id="player-hp" class="hp-bar"></div>
+                        </div>
+                    </div>
+                </div>
+                <div class="coin-display">
+                    <span class="label">COIN:</span>
+                    <span id="coin-count">0</span>
+                </div>
+            </header>
+
+            <!-- Battle Scene -->
+            <main id="battle-scene">
+                <div id="enemy-container">
+                    <div class="enemy-sprite" id="enemy">
+                        <!-- Enemy SVG or Placeholder -->
+                        <div class="enemy-core"></div>
+                    </div>
+                    <div class="enemy-hp-container">
+                        <div id="enemy-hp" class="hp-bar"></div>
+                    </div>
+                </div>
+
+                <!-- Floating Words Area -->
+                <div id="typing-area"></div>
+            </main>
+
+            <!-- Shop Overlay (Initial Hidden) -->
+            <div id="shop-overlay" class="hidden">
+                <div class="shop-content">
+                    <h2>ANCIENT MAGIC SHOP</h2>
+                    <div class="shop-items">
+                        <div class="shop-item locked">
+                            <span class="item-name">Chronos Gaze</span>
+                            <span class="item-price">500 C</span>
+                        </div>
+                        <div class="shop-item locked">
+                            <span class="item-name">Gravity Crush</span>
+                            <span class="item-price">1200 C</span>
+                        </div>
+                    </div>
+                    <button id="close-shop">Return to Battle</button>
+                </div>
+            </div>
+
+            <!-- Start Message / Character Selection -->
+            <div id="start-screen">
+                <h1 class="title">Typinger-Quest</h1>
+                <p class="subtitle">Select Your Hero</p>
+                <div id="char-selection" class="char-grid">
+                    <!-- Characters will be injected here -->
+                </div>
+                <button id="start-btn" class="hidden">ENGAGE</button>
+            </div>
+        </div>
+    </div>
+    <script src="app.js"></script>
+</body>
+
+</html>
