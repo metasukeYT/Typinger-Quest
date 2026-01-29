@@ -18,11 +18,18 @@
 
         <!-- Login Overlay -->
         <div id="login-screen" class="overlay">
-            <div class="glass-panel">
+            <div class="glass-panel auth-panel">
                 <h1 class="title">Typinger-Quest</h1>
-                <p class="subtitle">Enter Pilot Name</p>
-                <input type="text" id="username-input" placeholder="USERNAME" maxlength="12">
-                <button id="login-btn">INITIALIZE</button>
+                <p id="auth-mode-text" class="subtitle">Enter Pilot Credentials</p>
+                <div class="input-group">
+                    <input type="email" id="email-input" placeholder="EMAIL ADDRESS" required>
+                    <input type="password" id="password-input" placeholder="PASSWORD" required>
+                </div>
+                <div class="auth-actions">
+                    <button id="login-btn">LOGIN</button>
+                    <button id="register-btn" class="secondary-btn">REGISTER</button>
+                </div>
+                <p id="auth-error" class="error-msg hidden"></p>
             </div>
         </div>
 

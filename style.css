@@ -74,22 +74,58 @@ body {
     box-shadow: 0 0 50px rgba(0, 0, 0, 0.5);
 }
 
-#username-input {
-    background: rgba(255, 255, 255, 0.05);
-    border: 2px solid var(--neon-cyan);
-    color: var(--neon-cyan);
-    padding: 15px;
-    font-family: var(--font-ui);
-    font-size: 1.5rem;
-    text-align: center;
-    margin-bottom: 30px;
-    width: 300px;
-    outline: none;
-    box-shadow: 0 0 10px rgba(0, 243, 255, 0.2);
+.auth-panel {
+    width: 450px;
 }
 
-#username-input:focus {
-    box-shadow: 0 0 20px var(--neon-cyan);
+.input-group {
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+    margin-bottom: 30px;
+}
+
+#email-input,
+#password-input {
+    background: rgba(255, 255, 255, 0.05);
+    border: 1px solid var(--neon-cyan);
+    color: var(--neon-cyan);
+    padding: 12px;
+    font-family: var(--font-ui);
+    font-size: 1rem;
+    text-align: center;
+    outline: none;
+    box-shadow: 0 0 5px rgba(0, 243, 255, 0.1);
+}
+
+#email-input:focus,
+#password-input:focus {
+    box-shadow: 0 0 15px var(--neon-cyan);
+    border-color: #fff;
+}
+
+.auth-actions {
+    display: flex;
+    gap: 10px;
+    justify-content: center;
+}
+
+.secondary-btn {
+    border-color: var(--neon-magenta);
+    color: var(--neon-magenta);
+}
+
+.secondary-btn:hover {
+    background: var(--neon-magenta);
+    color: #fff;
+    box-shadow: 0 0 20px var(--neon-magenta);
+}
+
+.error-msg {
+    color: #ff4444;
+    font-size: 0.8rem;
+    margin-top: 15px;
+    font-family: var(--font-text);
 }
 
 .mini-btn {
@@ -252,6 +288,19 @@ body {
     color: rgba(255, 255, 255, 0.8);
     text-shadow: 0 0 10px rgba(255, 255, 255, 0.5);
     white-space: nowrap;
+    animation: word-appear 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+}
+
+@keyframes word-appear {
+    0% {
+        transform: scale(0) rotate(-10deg);
+        opacity: 0;
+    }
+
+    100% {
+        transform: scale(1) rotate(0deg);
+        opacity: 1;
+    }
 }
 
 .word-char.typed {
@@ -311,7 +360,6 @@ button:hover {
     display: none !important;
 }
 
-/* Character Selection Grid */
 .char-grid {
     display: grid;
     grid-template-columns: repeat(5, 1fr);
@@ -319,6 +367,8 @@ button:hover {
     width: 90%;
     max-width: 1000px;
     margin-bottom: 40px;
+    pointer-events: auto;
+    /* Enable interaction */
 }
 
 .char-card {
@@ -331,6 +381,9 @@ button:hover {
     text-align: center;
     position: relative;
     overflow: hidden;
+    pointer-events: auto;
+    /* Ensure clickable */
+    z-index: 105;
 }
 
 .char-card:hover {

@@ -15,7 +15,10 @@ const playerSpriteImg = document.getElementById('player-sprite');
 const charNameLabel = document.querySelector('.char-name');
 const loginScreen = document.getElementById('login-screen');
 const loginBtn = document.getElementById('login-btn');
-const usernameInput = document.getElementById('username-input');
+const registerBtn = document.getElementById('register-btn');
+const emailInput = document.getElementById('email-input');
+const passwordInput = document.getElementById('password-input');
+const authError = document.getElementById('auth-error');
 const switchCharBtn = document.getElementById('switch-char-btn');
 
 const shopOverlay = document.getElementById('shop-overlay');
@@ -31,64 +34,70 @@ let currentWordIndex = -1;
 let typedCharsCount = 0;
 let combo = 0;
 
-// --- Persistence Data Structure ---
-let currentUser = null;
+// --- Auth & Persistence ---
+let currentUserEmail = null;
 let userData = {
-    username: "",
+    email: "",
     coins: 0,
     level: 1,
-    unlockedSkills: {} // { charId: [skillId1, skillId2...] }
-};
-
-const MAGIC_SKILLS = {
-    light: [
-        { id: 'l1', name: 'Spark', cost: 100, desc: 'Bonus damage for short words' },
-        { id: 'l2', name: 'Bolt', cost: 300, desc: 'Completing words speeds up next word' },
-        { id: 'l3', name: 'Flash', cost: 600, desc: 'Increases light damage by 20%' },
-        { id: 'l4', name: 'Ion', cost: 1000, desc: 'Occasional chain lightning' },
-        { id: 'l5', name: 'Saber', cost: 1500, desc: 'Short words become area blasts' },
-        { id: 'l6', name: 'Storm', cost: 2000, desc: 'Combos above 10 strike multiple times' },
-        { id: 'l7', name: 'Ray', cost: 3000, desc: 'Lasers beam enemies' },
-        { id: 'l8', name: 'Prism', cost: 5000, desc: 'Splits small words into 3 hits' },
-        { id: 'l9', name: 'Supernova', cost: 8000, desc: 'Full screen clear on high combos' },
-        { id: 'l10', name: 'Godspeed', cost: 15000, desc: 'WPM multiplies all damage' }
-    ],
-    gravity: [
-        { id: 'g1', name: 'Mass', cost: 100, desc: 'Long words deal +10% impact' },
-        { id: 'g2', name: 'Crush', cost: 300, desc: 'Slows down long words movement' },
-        { id: 'g3', name: 'Field', cost: 600, desc: 'Reduces miss penalty' },
-        { id: 'g4', name: 'Orb', cost: 1000, desc: 'Summons gravity well' },
-        { id: 'g5', name: 'Void', cost: 1500, desc: 'Instakill low HP enemies' },
-        { id: 'g6', name: 'Singularity', cost: 2500, desc: 'Pulls all floating words together' },
-        { id: 'g7', name: 'Blackhole', cost: 4000, desc: 'Massive blast on massive words' },
-        { id: 'g8', name: 'Event Horizon', cost: 7000, desc: 'Coins x2 during long words' },
-        { id: 'g9', name: 'Quasar', cost: 10000, desc: 'Beam hits after every long word' },
-        { id: 'g10', name: 'Dark Matter', cost: 20000, desc: 'Ultimate gravity weapon' }
-    ],
-    chronos: Array.from({ length: 10 }, (_, i) => ({ id: `c${i}`, name: `Time Gear ${i}`, cost: 100 * (i + 1), desc: `Chronos Slot ${i + 1}` })),
-    bullet: Array.from({ length: 10 }, (_, i) => ({ id: `b${i}`, name: `Velocity ${i}`, cost: 100 * (i + 1), desc: `Bullet Slot ${i + 1}` })),
-    luminous: Array.from({ length: 10 }, (_, i) => ({ id: `m${i}`, name: `Ethereal ${i}`, cost: 100 * (i + 1), desc: `Luminous Slot ${i + 1}` }))
+    unlockedSkills: {}
 };
 
 function saveGame() {
-    if (!currentUser) return;
-    localStorage.setItem(`typing_quest_${currentUser}`, JSON.stringify(userData));
+    if (!currentUserEmail) return;
+    const users = JSON.parse(localStorage.getItem('tq_users') || '{}');
+    users[currentUserEmail].data = userData;
+    localStorage.setItem('tq_users', JSON.stringify(users));
 }
 
-function loadGame(username) {
-    const saved = localStorage.getItem(`typing_quest_${username}`);
-    if (saved) {
-        userData = JSON.parse(saved);
-        // Ensure all chars have entries in unlockedSkills
-        HEROES.forEach(h => {
-            if (!userData.unlockedSkills[h.id]) userData.unlockedSkills[h.id] = [];
-        });
+function handleLogin() {
+    const email = emailInput.value.trim().toLowerCase();
+    const pass = passwordInput.value;
+    const users = JSON.parse(localStorage.getItem('tq_users') || '{}');
+
+    if (users[email] && users[email].password === pass) {
+        currentUserEmail = email;
+        userData = users[email].data;
+        loginScreen.classList.add('hidden');
+        startScreen.classList.remove('hidden');
+        updateHUDFromData();
+        authError.classList.add('hidden');
     } else {
-        userData = { username: username, coins: 0, level: 1, unlockedSkills: {} };
-        HEROES.forEach(h => userData.unlockedSkills[h.id] = []);
+        authError.innerText = "Invalid credentials.";
+        authError.classList.remove('hidden');
     }
-    currentUser = username;
-    updateHUDFromData();
+}
+
+function handleRegister() {
+    const email = emailInput.value.trim().toLowerCase();
+    const pass = passwordInput.value;
+
+    if (!email || !pass) {
+        authError.innerText = "Please fill all fields.";
+        authError.classList.remove('hidden');
+        return;
+    }
+
+    const users = JSON.parse(localStorage.getItem('tq_users') || '{}');
+    if (users[email]) {
+        authError.innerText = "Email already exists.";
+        authError.classList.remove('hidden');
+    } else {
+        users[email] = {
+            password: pass,
+            data: {
+                email: email,
+                coins: 0,
+                level: 1,
+                unlockedSkills: {
+                    light: [], gravity: [], chronos: [], bullet: [], luminous: []
+                }
+            }
+        };
+        localStorage.setItem('tq_users', JSON.stringify(users));
+        alert("Registration Successful! Please login.");
+        authError.classList.add('hidden');
+    }
 }
 
 function updateHUDFromData() {
@@ -100,9 +109,9 @@ function updateHUDFromData() {
 const HEROES = [
     { id: 'light', name: 'LIGHT', img: 'player.png', trait: 'Flash: Bonus dmg for short words' },
     { id: 'gravity', name: 'GRAVITY', img: 'gravity.png', trait: 'Pressure: Massive dmg for 8+ char words' },
-    { id: 'chronos', name: 'CHRONOS', img: 'chronos.png', trait: 'Time: Rewind 1s on miss (Placeholder)' },
+    { id: 'chronos', name: 'CHRONOS', img: 'chronos.png', trait: 'Time: Rewind 1s on miss' },
     { id: 'bullet', name: 'BULLET', img: 'bullet.png', trait: 'Haste: Coin bonus based on speed' },
-    { id: 'luminous', name: 'LUMINOUS', img: 'luminous.png', trait: 'Barrier: Blocks first 3 misses' }
+    { id: 'luminous', name: 'LUMINOUS', img: 'luminous.png', trait: 'Barrier: Blocks miss penalty' }
 ];
 
 let selectedHero = null;
@@ -113,27 +122,19 @@ let playerHp = 100;
 class Particle {
     constructor() { this.reset(); }
     reset() {
-        this.x = Math.random() * width;
-        this.y = Math.random() * height;
+        this.x = Math.random() * width; this.y = Math.random() * height;
         this.size = Math.random() * 2 + 1;
-        this.vx = (Math.random() - 0.5) * 0.5;
-        this.vy = (Math.random() - 0.5) * 0.5;
+        this.vx = (Math.random() - 0.5) * 0.5; this.vy = (Math.random() - 0.5) * 0.5;
         this.color = Math.random() > 0.5 ? '#00f3ff' : '#ff00ff';
-        this.alpha = Math.random();
-        this.life = 1;
-        this.decay = 0;
+        this.alpha = Math.random(); this.life = 1; this.decay = 0;
     }
     update() {
-        this.x += this.vx; this.y += this.vy;
-        this.life -= this.decay;
+        this.x += this.vx; this.y += this.vy; this.life -= this.decay;
         if (this.x < 0 || this.x > width || this.y < 0 || this.y > height || this.life <= 0) this.reset();
     }
     draw() {
-        ctx.globalAlpha = this.life * this.alpha;
-        ctx.fillStyle = this.color;
-        ctx.beginPath();
-        ctx.arc(this.x, this.y, this.size, 0, Math.PI * 2);
-        ctx.fill();
+        ctx.globalAlpha = this.life * this.alpha; ctx.fillStyle = this.color;
+        ctx.beginPath(); ctx.arc(this.x, this.y, this.size, 0, Math.PI * 2); ctx.fill();
     }
 }
 
@@ -171,9 +172,11 @@ class FloatingWord {
         this.element.style.top = `${this.y}px`;
         if (currentWordIndex !== -1 && words[currentWordIndex] === this) {
             this.element.style.color = '#fff';
-            this.element.style.textShadow = '0 0 20px #fff';
+            this.element.style.textShadow = '0 0 20px var(--neon-cyan), 0 0 40px var(--neon-cyan)';
+            this.element.style.transform += ' scale(1.1)';
         } else {
             this.element.style.color = 'rgba(255,255,255,0.6)';
+            this.element.style.textShadow = 'none';
         }
     }
     destroy() { this.element.remove(); }
@@ -195,30 +198,23 @@ function spawnWord() {
     words.push(word);
 }
 
-// --- Login & Selection ---
-loginBtn.onclick = () => {
-    const name = usernameInput.value.trim().toUpperCase();
-    if (name) {
-        loadGame(name);
-        loginScreen.classList.add('hidden');
-        startScreen.classList.remove('hidden');
-    }
-};
-
 function initSelection() {
     charSelection.innerHTML = "";
     HEROES.forEach(hero => {
         const card = document.createElement('div');
         card.className = `char-card`;
         card.innerHTML = `<img src="${hero.img}" alt="${hero.name}"><span>${hero.name}</span><small style="font-size: 0.6rem; color: #888;">${hero.trait}</small>`;
-        card.onclick = () => selectHero(hero, card);
+        card.addEventListener('click', (e) => {
+            e.stopPropagation();
+            selectHero(hero, card);
+        });
         charSelection.appendChild(card);
     });
 }
 
 function selectHero(hero, card) {
     document.querySelectorAll('.char-card').forEach(c => c.classList.remove('selected'));
-    if (card) card.classList.add('selected');
+    card.classList.add('selected');
     selectedHero = hero;
     startBtn.classList.remove('hidden');
     playerSpriteImg.src = hero.img;
@@ -233,45 +229,9 @@ switchCharBtn.onclick = () => {
     currentWordIndex = -1;
 };
 
-// --- Shop System ---
-function openShop() {
-    shopUsername.innerText = userData.username;
-    shopCoins.innerText = userData.coins;
-    magicList.innerHTML = "";
-    const skills = MAGIC_SKILLS[selectedHero.id] || [];
-    const unlocked = userData.unlockedSkills[selectedHero.id] || [];
-    skills.forEach(skill => {
-        const isOwned = unlocked.includes(skill.id);
-        const item = document.createElement('div');
-        item.className = 'shop-item';
-        item.innerHTML = `
-            <div class="skill-info">
-                <span class="skill-name">${skill.name}</span>
-                <span class="skill-desc">${skill.desc}</span>
-            </div>
-            <button class="buy-btn ${isOwned ? 'owned' : ''}" onclick="buySkill('${selectedHero.id}', '${skill.id}', ${skill.cost})">
-                ${isOwned ? 'OWNED' : skill.cost + ' C'}
-            </button>
-        `;
-        magicList.appendChild(item);
-    });
-    shopOverlay.classList.remove('hidden');
-}
-
-window.buySkill = (charId, skillId, cost) => {
-    if (!userData.unlockedSkills[charId]) userData.unlockedSkills[charId] = [];
-    if (userData.unlockedSkills[charId].includes(skillId)) return;
-    if (userData.coins >= cost) {
-        userData.coins -= cost;
-        userData.unlockedSkills[charId].push(skillId);
-        saveGame();
-        openShop();
-        updateHUDFromData();
-    } else { alert("Not enough coins!"); }
-};
-closeShopBtn.onclick = () => shopOverlay.classList.add('hidden');
-
 // --- Game Logic ---
+let wordStartTime = 0;
+
 function handleInput(e) {
     if (words.length === 0 || !selectedHero) return;
     const key = e.key.toLowerCase();
@@ -280,6 +240,7 @@ function handleInput(e) {
             if (words[i].text[0] === key) {
                 currentWordIndex = i;
                 typedCharsCount = 0;
+                wordStartTime = Date.now();
                 break;
             }
         }
@@ -289,7 +250,6 @@ function handleInput(e) {
         if (targetWord.text[typedCharsCount] === key) {
             const chars = targetWord.element.querySelectorAll('.word-char');
             chars[typedCharsCount].classList.add('typed');
-            triggerExplosion(targetWord.x + (typedCharsCount * 15), targetWord.y, '#00f3ff', 5, 0.1);
             typedCharsCount++;
             combo++;
             updateComboUI();
@@ -301,15 +261,20 @@ function handleInput(e) {
 }
 
 function handleMiss() {
-    combo = 0;
-    updateComboUI();
-    playerHp -= 2;
+    combo = 0; updateComboUI();
+
+    // Luminous Trait: 50% chance to block damage
+    if (selectedHero.id === 'luminous' && Math.random() > 0.5) {
+        triggerExplosion(width / 2, height / 2, '#fff', 10, 0.05);
+        return;
+    }
+
+    // Chronos Trait: Half damage taken
+    let damageTaken = (selectedHero.id === 'chronos') ? 1 : 2;
+    playerHp -= damageTaken;
     playerHpBar.style.width = `${playerHp}%`;
     shakeScreen();
-    if (playerHp <= 0) {
-        alert("GAME OVER! Back to start.");
-        location.reload();
-    }
+    if (playerHp <= 0) { alert("Pilot down. Re-initializing..."); location.reload(); }
 }
 
 function updateComboUI() {
@@ -328,14 +293,16 @@ function completeWord(word) {
     let damageMult = 1;
     let coinMult = 1;
 
-    // Apply generic character logic
-    if (selectedHero.id === 'light' && word.text.length <= 3) damageMult *= 1.5;
-    if (selectedHero.id === 'gravity' && word.text.length >= 8) damageMult *= 2;
+    // Character Traits
+    if (selectedHero.id === 'light' && word.text.length <= 4) damageMult *= 1.5;
+    if (selectedHero.id === 'gravity' && word.text.length >= 8) damageMult *= 2.5;
 
-    // Apply Magic Skill logic (Simplified for demo)
-    if (unlocked.includes('l1') && word.text.length <= 3) damageMult += 0.05;
-    if (unlocked.includes('l3')) damageMult += 0.2;
-    if (unlocked.includes('g1') && word.text.length >= 8) damageMult += 0.1;
+    // Bullet Trait: Speed bonus
+    if (selectedHero.id === 'bullet') {
+        const timeTaken = (Date.now() - wordStartTime) / 1000;
+        const speedBonus = Math.max(0.5, 2 - timeTaken); // Faster typing = higher mult
+        coinMult *= speedBonus;
+    }
 
     let damage = word.text.length * (5 + combo * 0.2) * damageMult;
     enemyHp -= damage;
@@ -352,22 +319,29 @@ function completeWord(word) {
     typedCharsCount = 0;
 
     if (enemyHp <= 0) {
-        openShop();
+        userData.level++;
+        levelDisplay.innerText = userData.level;
+        saveGame();
+        alert("Enemy Neutralized. Level increased.");
         enemyHp = 100 + userData.level * 10;
         enemyHpBar.style.width = '100%';
     }
     setTimeout(spawnWord, 500);
 }
 
-function triggerExplosion(x, y, color = '#ffff00', count = 20, decay = 0.02) {
-    for (let i = 0; i < count; i++) {
-        const p = new Particle();
-        p.x = x; p.y = y;
-        p.vx = (Math.random() - 0.5) * 15; p.vy = (Math.random() - 0.5) * 15;
-        p.decay = decay; p.color = color;
-        particles.push(p);
-    }
-}
+// --- Init & Loop ---
+loginBtn.onclick = handleLogin;
+registerBtn.onclick = handleRegister;
+
+window.addEventListener('resize', resize);
+window.addEventListener('keydown', handleInput);
+startBtn.addEventListener('click', () => {
+    startScreen.classList.add('hidden');
+    spawnWord(); spawnWord();
+});
+
+resize();
+initSelection();
 
 function animate() {
     ctx.clearRect(0, 0, width, height);
@@ -377,15 +351,4 @@ function animate() {
     words.forEach(w => w.update());
     requestAnimationFrame(animate);
 }
-
-window.addEventListener('resize', resize);
-window.addEventListener('keydown', handleInput);
-startBtn.addEventListener('click', () => {
-    startScreen.classList.add('hidden');
-    spawnWord();
-    spawnWord();
-});
-
-resize();
-initSelection();
 animate();
