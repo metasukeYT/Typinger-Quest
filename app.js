@@ -53,7 +53,11 @@ let tempUserData = null;
 let currentVerificationCode = "";
 
 function saveGame() {
-    if (!currentUserEmail || currentUserEmail === "GUEST") return;
+    if (!currentUserEmail) return;
+    if (currentUserEmail === "GUEST") {
+        localStorage.setItem('tq_guest_data', JSON.stringify(userData));
+        return;
+    }
     const users = JSON.parse(localStorage.getItem('tq_users') || '{}');
     if (users[currentUserEmail]) {
         users[currentUserEmail].data = userData;
@@ -137,18 +141,22 @@ function handleVerify() {
 
 function handleGuest() {
     currentUserEmail = "GUEST";
-    userData = {
-        email: "GUEST",
-        coins: 0,
-        level: 1,
-        unlockedSkills: {
-            light: [], gravity: [], chronos: [], bullet: [], luminous: []
-        }
-    };
+    const savedGuest = localStorage.getItem('tq_guest_data');
+    if (savedGuest) {
+        userData = JSON.parse(savedGuest);
+    } else {
+        userData = {
+            email: "GUEST",
+            coins: 0,
+            level: 1,
+            unlockedSkills: {
+                light: [], gravity: [], chronos: [], bullet: [], luminous: []
+            }
+        };
+    }
     loginScreen.classList.add('hidden');
     startScreen.classList.remove('hidden');
     updateHUDFromData();
-    alert("Playing as GUEST. Progress will not be saved.");
 }
 
 function updateHUDFromData() {
