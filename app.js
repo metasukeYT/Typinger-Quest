@@ -16,6 +16,10 @@ const charNameLabel = document.querySelector('.char-name');
 const loginScreen = document.getElementById('login-screen');
 const loginBtn = document.getElementById('login-btn');
 const registerBtn = document.getElementById('register-btn');
+const guestBtn = document.getElementById('guest-btn');
+const verifySection = document.getElementById('verify-section');
+const verifyInput = document.getElementById('verify-input');
+const verifyBtn = document.getElementById('verify-btn');
 const emailInput = document.getElementById('email-input');
 const passwordInput = document.getElementById('password-input');
 const authError = document.getElementById('auth-error');
@@ -40,14 +44,21 @@ let userData = {
     email: "",
     coins: 0,
     level: 1,
-    unlockedSkills: {}
+    unlockedSkills: {
+        light: [], gravity: [], chronos: [], bullet: [], luminous: []
+    }
 };
 
+let tempUserData = null;
+let currentVerificationCode = "";
+
 function saveGame() {
-    if (!currentUserEmail) return;
+    if (!currentUserEmail || currentUserEmail === "GUEST") return;
     const users = JSON.parse(localStorage.getItem('tq_users') || '{}');
-    users[currentUserEmail].data = userData;
-    localStorage.setItem('tq_users', JSON.stringify(users));
+    if (users[currentUserEmail]) {
+        users[currentUserEmail].data = userData;
+        localStorage.setItem('tq_users', JSON.stringify(users));
+    }
 }
 
 function handleLogin() {
@@ -82,7 +93,27 @@ function handleRegister() {
     if (users[email]) {
         authError.innerText = "Email already exists.";
         authError.classList.remove('hidden');
-    } else {
+        return;
+    }
+
+    // Start verification simulation
+    currentVerificationCode = Math.floor(100000 + Math.random() * 900000).toString();
+    tempUserData = { email, pass };
+
+    alert(`[SIMULATION] Verification code sent to ${email}: ${currentVerificationCode}`);
+
+    document.querySelector('.auth-actions').classList.add('hidden');
+    document.querySelector('.input-group').classList.add('hidden');
+    verifySection.classList.remove('hidden');
+}
+
+function handleVerify() {
+    const code = verifyInput.value.trim();
+    if (code === currentVerificationCode) {
+        const email = tempUserData.email;
+        const pass = tempUserData.pass;
+        const users = JSON.parse(localStorage.getItem('tq_users') || '{}');
+
         users[email] = {
             password: pass,
             data: {
@@ -95,9 +126,29 @@ function handleRegister() {
             }
         };
         localStorage.setItem('tq_users', JSON.stringify(users));
+
         alert("Registration Successful! Please login.");
-        authError.classList.add('hidden');
+        location.reload(); // Reset UI for login
+    } else {
+        authError.innerText = "Invalid verification code.";
+        authError.classList.remove('hidden');
     }
+}
+
+function handleGuest() {
+    currentUserEmail = "GUEST";
+    userData = {
+        email: "GUEST",
+        coins: 0,
+        level: 1,
+        unlockedSkills: {
+            light: [], gravity: [], chronos: [], bullet: [], luminous: []
+        }
+    };
+    loginScreen.classList.add('hidden');
+    startScreen.classList.remove('hidden');
+    updateHUDFromData();
+    alert("Playing as GUEST. Progress will not be saved.");
 }
 
 function updateHUDFromData() {
@@ -289,7 +340,6 @@ function shakeScreen() {
 }
 
 function completeWord(word) {
-    let unlocked = userData.unlockedSkills[selectedHero.id] || [];
     let damageMult = 1;
     let coinMult = 1;
 
@@ -300,7 +350,7 @@ function completeWord(word) {
     // Bullet Trait: Speed bonus
     if (selectedHero.id === 'bullet') {
         const timeTaken = (Date.now() - wordStartTime) / 1000;
-        const speedBonus = Math.max(0.5, 2 - timeTaken); // Faster typing = higher mult
+        const speedBonus = Math.max(0.5, 2 - timeTaken);
         coinMult *= speedBonus;
     }
 
@@ -329,9 +379,21 @@ function completeWord(word) {
     setTimeout(spawnWord, 500);
 }
 
+function triggerExplosion(x, y, color = '#ffff00', count = 20, decay = 0.02) {
+    for (let i = 0; i < count; i++) {
+        const p = new Particle();
+        p.x = x; p.y = y;
+        p.vx = (Math.random() - 0.5) * 15; p.vy = (Math.random() - 0.5) * 15;
+        p.decay = decay; p.color = color;
+        particles.push(p);
+    }
+}
+
 // --- Init & Loop ---
 loginBtn.onclick = handleLogin;
 registerBtn.onclick = handleRegister;
+guestBtn.onclick = handleGuest;
+verifyBtn.onclick = handleVerify;
 
 window.addEventListener('resize', resize);
 window.addEventListener('keydown', handleInput);

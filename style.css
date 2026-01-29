@@ -128,6 +128,34 @@ body {
     font-family: var(--font-text);
 }
 
+.tertiary-btn {
+    border-color: #888;
+    color: #888;
+}
+
+.tertiary-btn:hover {
+    background: #333;
+    color: #fff;
+    box-shadow: 0 0 10px #888;
+}
+
+#verify-section {
+    margin-top: 20px;
+    padding-top: 20px;
+    border-top: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+#verify-input {
+    background: rgba(255, 255, 255, 0.05);
+    border: 1px solid var(--neon-yellow);
+    color: var(--neon-yellow);
+    padding: 10px;
+    font-family: var(--font-ui);
+    text-align: center;
+    width: 150px;
+    margin-bottom: 15px;
+}
+
 .mini-btn {
     padding: 5px 10px;
     font-size: 0.7rem;
